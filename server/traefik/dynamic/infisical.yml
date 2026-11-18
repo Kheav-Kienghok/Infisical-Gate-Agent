@@ -1,0 +1,13 @@
+http:
+  routers:
+    infisical:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - websecure
+      service: infisical
+      tls: {}
+  services:
+    infisical:
+      loadBalancer:
+        servers:
+          - url: "http://backend:8080"

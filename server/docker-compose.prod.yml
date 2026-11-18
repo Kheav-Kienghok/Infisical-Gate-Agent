@@ -1,0 +1,64 @@
+services:
+  traefik:
+    image: docker.io/library/traefik:v3.1
+    container_name: infisical-traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./certs:/etc/traefik/certs:ro
+    depends_on:
+      - backend
+    networks:
+      - infisical
+
+  backend:
+    container_name: infisical-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    image: docker.io/infisical/infisical:latest # PIN THIS TO A SPECIFIC TAG
+    pull_policy: always
+    env_file: .env
+    # no published ports: only Traefik is reachable from outside
+    environment:
+      - NODE_ENV=production
+    networks:
+      - infisical
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    container_name: infisical-redis
+    restart: always
+    networks:
+      - infisical
+    volumes:
+      - redis_data:/data
+
+  db:
+    container_name: infisical-db
+    image: docker.io/library/postgres:14-alpine
+    restart: always
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - infisical
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+volumes:
+  pg_data:
+  redis_data:
+
+networks:
+  infisical:

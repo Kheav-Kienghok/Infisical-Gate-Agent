@@ -1,0 +1,3 @@
+server/.env
+server/certs/
+client/ca.crt

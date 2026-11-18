@@ -1,0 +1,20 @@
+infisical:
+  address: "https://__SERVER__"
+
+auth:
+  type: "universal-auth"
+  config:
+    client-id: "/etc/infisical/client-id"
+    client-secret: "/etc/infisical/client-secret"
+    remove_client_secret_on_read: false
+
+sinks:
+  - type: "file"
+    config:
+      path: "/run/infisical/token"
+
+templates:
+  - source-path: "/etc/infisical/odoo.env.tmpl"
+    destination-path: "/run/infisical/odoo.env"
+    config:
+      polling-interval: "60s"

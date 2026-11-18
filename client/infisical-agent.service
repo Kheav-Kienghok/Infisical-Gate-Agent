@@ -1,0 +1,21 @@
+[Unit]
+Description=Infisical Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=infisical
+Group=infisical
+RuntimeDirectory=infisical
+RuntimeDirectoryMode=0750
+UMask=0027
+ExecStart=__BIN__ agent --config /etc/infisical/agent.yaml
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
